@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>匯率轉換器</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 40px;
+            max-width: 500px;
+            width: 100%;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            margin-bottom: 10px;
+            font-size: 2em;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+            font-size: 0.9em;
+        }
+
+        .converter-box {
+            margin-bottom: 25px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        select, input {
+            width: 100%;
+            padding: 15px;
+            border: 2px solid #e0e0e0;
+            border-radius: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            background-color: #f8f9fa;
+        }
+
+        select:focus, input:focus {
+            outline: none;
+            border-color: #667eea;
+            background-color: white;
+        }
+
+        input[type="number"] {
+            font-size: 1.2em;
+            font-weight: 600;
+        }
+
+        .exchange-icon {
+            text-align: center;
+            margin: 20px 0;
+            font-size: 2em;
+            color: #667eea;
+        }
+
+        .result-box {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 15px;
+            margin-top: 30px;
+            text-align: center;
+        }
+
+        .result-box h2 {
+            font-size: 1.2em;
+            margin-bottom: 10px;
+            opacity: 0.9;
+        }
+
+        .result-amount {
+            font-size: 2.5em;
+            font-weight: bold;
+            margin: 10px 0;
+        }
+
+        .exchange-rate {
+            font-size: 0.9em;
+            opacity: 0.8;
+            margin-top: 10px;
+        }
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 10px;
+            font-size: 1.1em;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s ease, box-shadow 0.2s ease;
+            margin-top: 20px;
+        }
+
+        button:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+        }
+
+        button:active {
+            transform: translateY(0);
+        }
+
+        .error-message {
+            color: #e74c3c;
+            font-size: 0.9em;
+            margin-top: 5px;
+            display: none;
+        }
+
+        .loading {
+            display: none;
+            text-align: center;
+            color: #667eea;
+            margin-top: 10px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 30px 20px;
+            }
+
+            h1 {
+                font-size: 1.6em;
+            }
+
+            .result-amount {
+                font-size: 2em;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>💱 匯率轉換器</h1>
+        <p class="subtitle">即時匯率計算</p>
+
+        <div class="converter-box">
+            <label for="fromCurrency">來源貨幣</label>
+            <select id="fromCurrency">
+                <option value="TWD">台幣 (TWD)</option>
+                <option value="USD">美元 (USD)</option>
+                <option value="JPY">日圓 (JPY)</option>
+                <option value="EUR">歐元 (EUR)</option>
+                <option value="GBP">英鎊 (GBP)</option>
+                <option value="CNY">人民幣 (CNY)</option>
+                <option value="HKD">港幣 (HKD)</option>
+                <option value="KRW">韓元 (KRW)</option>
+                <option value="SGD">新加坡幣 (SGD)</option>
+                <option value="AUD">澳幣 (AUD)</option>
+                <option value="CAD">加幣 (CAD)</option>
+                <option value="THB">泰銖 (THB)</option>
+            </select>
+        </div>
+
+        <div class="converter-box">
+            <label for="amount">輸入金額</label>
+            <input type="number" id="amount" placeholder="請輸入金額" min="0" step="0.01">
+            <div class="error-message" id="errorMessage">請輸入有效金額</div>
+        </div>
+
+        <div class="exchange-icon">⇅</div>
+
+        <div class="converter-box">
+            <label for="toCurrency">目標貨幣</label>
+            <select id="toCurrency">
+                <option value="JPY">日圓 (JPY)</option>
+                <option value="USD">美元 (USD)</option>
+                <option value="TWD">台幣 (TWD)</option>
+                <option value="EUR">歐元 (EUR)</option>
+                <option value="GBP">英鎊 (GBP)</option>
+                <option value="CNY">人民幣 (CNY)</option>
+                <option value="HKD">港幣 (HKD)</option>
+                <option value="KRW">韓元 (KRW)</option>
+                <option value="SGD">新加坡幣 (SGD)</option>
+                <option value="AUD">澳幣 (AUD)</option>
+                <option value="CAD">加幣 (CAD)</option>
+                <option value="THB">泰銖 (THB)</option>
+            </select>
+        </div>
+
+        <button onclick="convertCurrency()">轉換</button>
+
+        <div class="loading" id="loading">計算中...</div>
+
+        <div class="result-box" id="resultBox" style="display: none;">
+            <h2>轉換結果</h2>
+            <div class="result-amount" id="resultAmount">0.00</div>
+            <div class="exchange-rate" id="exchangeRate">匯率: 1 TWD = 0 JPY</div>
+        </div>
+    </div>
+
+    <script>
+        // 使用 exchangerate-api.com 的免費 API
+        const API_KEY = 'YOUR_API_KEY'; // 可以到 https://www.exchangerate-api.com/ 免費註冊獲取
+        const API_URL = 'https://api.exchangerate-api.com/v4/latest/';
+
+        async function convertCurrency() {
+            const amount = parseFloat(document.getElementById('amount').value);
+            const fromCurrency = document.getElementById('fromCurrency').value;
+            const toCurrency = document.getElementById('toCurrency').value;
+            const errorMessage = document.getElementById('errorMessage');
+            const resultBox = document.getElementById('resultBox');
+            const loading = document.getElementById('loading');
+
+            // 驗證輸入
+            if (isNaN(amount) || amount <= 0) {
+                errorMessage.style.display = 'block';
+                resultBox.style.display = 'none';
+                return;
+            }
+
+            errorMessage.style.display = 'none';
+            loading.style.display = 'block';
+            resultBox.style.display = 'none';
+
+            try {
+                // 獲取匯率數據
+                const response = await fetch(`${API_URL}${fromCurrency}`);
+                const data = await response.json();
+
+                if (data.rates && data.rates[toCurrency]) {
+                    const rate = data.rates[toCurrency];
+                    const result = amount * rate;
+
+                    // 顯示結果
+                    document.getElementById('resultAmount').textContent = 
+                        result.toLocaleString('zh-TW', { 
+                            minimumFractionDigits: 2, 
+                            maximumFractionDigits: 2 
+                        }) + ' ' + toCurrency;
+
+                    document.getElementById('exchangeRate').textContent = 
+                        `匯率: 1 ${fromCurrency} = ${rate.toFixed(4)} ${toCurrency}`;
+
+                    loading.style.display = 'none';
+                    resultBox.style.display = 'block';
+                } else {
+                    throw new Error('無法獲取匯率');
+                }
+            } catch (error) {
+                loading.style.display = 'none';
+                alert('獲取匯率失敗，請稍後再試');
+                console.error('Error:', error);
+            }
+        }
+
+        // 按 Enter 鍵也可以轉換
+        document.getElementById('amount').addEventListener('keypress', function(event) {
+            if (event.key === 'Enter') {
+                convertCurrency();
+            }
+        });
+
+        // 當用戶輸入時隱藏錯誤訊息
+        document.getElementById('amount').addEventListener('input', function() {
+            document.getElementById('errorMessage').style.display = 'none';
+        });
+    </script>
+</body>
+</html>
